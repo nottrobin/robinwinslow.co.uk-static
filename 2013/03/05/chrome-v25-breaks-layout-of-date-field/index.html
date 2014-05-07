@@ -1,0 +1,269 @@
+<!doctype html>
+
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+       
+     	<title>Chrome v25 breaks layout of date field | robin blog</title>
+    	
+    	<meta name="description" content="Chrome ruined my day by introducing a serious breaking change in the update to v25. The HTML5 input date type is likely to display wrong.">
+        <meta name="viewport" content="width=device-width">
+        
+        <link href='/assets/main-42c47c620396de501fe69890b627f720.css' rel='stylesheet' type='text/css' />
+
+
+        <script>
+            if (location.hostname=="robinwinslow.co.uk") {
+                var _gaq=[
+                    ['_require', 'inpage_linkid', '//www.google-analytics.com/plugins/ga/inpage_linkid.js'],
+                    ['_setAccount','UA-2993676-8'],
+                    ['_trackPageview']
+                ];
+                (function() {
+                    var ga = document.createElement('script');
+                    ga.type = 'text/javascript';
+                    ga.async = true;
+                    ga.src = '//www.google-analytics.com/ga.js';
+                    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+                })();
+            }
+        </script>
+
+        <link type="application/atom+xml" rel="alternative" href="http://robinwinslow.co.uk/rss.xml" />
+    </head>
+
+    <body>
+        <!--[if lt IE 9]>
+            <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/?locale=en">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
+        <![endif]-->
+        
+        <header>
+            <aside class='vcard'>
+                <hgroup>
+                    <h2 class="fn given-name">Robin</h2>
+                    <h1><a href="/">Blog</a></h1>
+                </hgroup>
+
+                <address>
+                    <ul>
+                        <li title="CV/resumé">
+                            <a href="http://cv.robinwinslow.co.uk" class="icon-file-alt"><span class="resumé">CV/resumé</span></a>
+                        </li>
+                        <li title="Me @ Ubuntu Design Blog">
+                            <a href="http://design.canonical.com/author/nottrobin/"><img src="https://cdn.mediacru.sh/39Xbmyz_jjMh.svg" height="25" class="work-profile" alt="Me @ Ubuntu Design Blog" /></a>
+                        </li>
+                        <li title="Email: robin@robinwinslow.co.uk">
+                            <a href="mailto:robin@robinwinslow.co.uk" class="icon-envelope"><span class="email">robin@robinwinslow.co.uk</span></a>
+                        </li>
+                        <li title="Phone: 07795070704">
+                            <a href="tel:07795070704" class="icon-phone"><span class="tel">07795070704</span></a>
+                        </li>
+                        <li title="Twitter: @nottrobin">
+                            <a href="https://twitter.com/nottrobin" class="icon-twitter"><span class="twitter">@nottrobin</span></a>
+                        </li>
+                        <li title="Facebook: robinwinslowmorris">
+                            <a href="https://facebook.com/robinwinslowmorris" class="icon-facebook"><span class="facebook">robinwinslowmorris</span></a>
+                        </li>
+                        <li title="Fork me on Github" class="github">
+                            <a href="https://github.com/nottrobin/robin-blog/" class="icon-github"><span class="github">Fork me on github</span></a>
+                        </li>
+                    </ul>
+                </address>
+            </aside>
+        </header>
+
+        <article>
+    <header>
+        <h1>Chrome v25 breaks layout of date field</h1>
+        <date>05 Mar 2013</date>
+    </header>
+    
+    <p>Chrome version 25 appears to have made a pretty serious change to how the <a href="http://www.w3.org/TR/html-markup/input.date.html">HTML5 input date type</a> is rendered.</p>
+
+<p>Now the <code>date</code> type defaults to <code>display: -webkit-inline-flex</code>, and (this is the bad bit) if you use <code>display: block</code> the layout breaks:</p>
+
+<p><img src="http://i.imgur.com/K1HqV3L.png" alt="date field layout broken"></p>
+
+<p>(<a href="http://jsfiddle.net/nottrobin/zjHbv/2/">try it yourself</a>)</p>
+
+<h1 id="why-is-this-bad?">Why is this bad?</h1>
+
+<p>We use the date type on <a href="http://arena-blinds.com">arena blinds</a>,
+and to have more control over the layout of the input fields, they are all set to <code>display: block</code>.
+I think this is, if not &quot;best&quot;, at least a pretty common practice.</p>
+
+<p>So one day we realised our date fields looked broken in Chrome, and it was because of this issue. So my boss said:</p>
+
+<blockquote>
+<p>If we can&#39;t rely on the date control not to break, we have to abandon the HTML5 date field altogether</p>
+</blockquote>
+
+<p>And that&#39;s entirely fair reasoning.</p>
+
+<h1 id="cognitive-dissonance">Cognitive dissonance</h1>
+
+<p>My boss&#39;s perfectly reasonable conclusion goes against everything progressive that I&#39;ve been trying to instil in my team.</p>
+
+<p><a href="http://en.wikipedia.org/wiki/Progressive_enhancement">Progressive enhancement</a> is accepted best practice nowadays - to
+use the built-in functionality when it&#39;s there, with fall-backs for browsers that don&#39;t support it. E.g.:</p>
+<div class="highlight"><pre><code class="javascript"><span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">Modernizr</span><span class="p">.</span><span class="nx">inputtypes</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">])</span> <span class="p">{</span>
+    <span class="nx">$</span><span class="p">(</span><span class="s1">&#39;input[type=date]&#39;</span><span class="p">).</span><span class="nx">datepicker</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>This is a solid approach I strongly believe in.
+But if Chrome are going to implement breaking changes like this, I don&#39;t know what to think any more.</p>
+
+<p>Chrome, you&#39;ve ruined my day.</p>
+
+    
+</article>
+
+
+<section id="categories">
+    <h1>Similar posts</h1>
+    
+    <nav>
+        <ul>
+    
+        
+            
+            <li><a href="/2013/06/20/loading-fonts-as-data-urls/">Loading fonts as Data URLs for performance</a></li>
+            
+        
+            
+        
+            
+            <li><a href="/2013/03/02/awesome-in-site-user-feedback/">An awesome in-site user feedback tool - with Github integration</a></li>
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    
+        </ul>
+    </nav>
+</section>
+
+
+
+<section id="categories">
+    <h1>Read more about</h1>
+    
+    <nav>
+        <ul>
+    
+        
+    
+        
+    
+        
+            <li><a href="/postsbytag.html#front-end">front-end</a> <small>(12)</small></li>
+        
+    
+        
+    
+        
+            <li><a href="/postsbytag.html#development">development</a> <small>(35)</small></li>
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        </ul>
+    </nav>
+</section>
+
+
+<div id="disqus_thread" class="comments"></div>
+
+<script>
+    if (location.hostname=="robinwinslow.co.uk") {
+        var disqus_shortname = 'robin-blog'; // required: replace example with your forum shortname
+        
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    }
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+        <footer>
+            <aside>
+                <p class="side">Please <a href="http://creativecommons.org/licenses/by-sa/3.0/">copy, modify and reshare</a> my work.</p>
+                <p>By <a href="https://plus.google.com/104026832761488144614" rel="author">Robin Winslow</a></a>
+            </aside>
+        </footer>
+    </body>
+</html>

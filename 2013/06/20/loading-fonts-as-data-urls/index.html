@@ -1,0 +1,275 @@
+<!doctype html>
+
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+       
+     	<title>Loading fonts as Data URLs for performance | robin blog</title>
+    	
+    	<meta name="description" content="Including your fonts inside your CSS files as Data URLs can help with performance">
+        <meta name="viewport" content="width=device-width">
+        
+        <link href='/assets/main-42c47c620396de501fe69890b627f720.css' rel='stylesheet' type='text/css' />
+
+
+        <script>
+            if (location.hostname=="robinwinslow.co.uk") {
+                var _gaq=[
+                    ['_require', 'inpage_linkid', '//www.google-analytics.com/plugins/ga/inpage_linkid.js'],
+                    ['_setAccount','UA-2993676-8'],
+                    ['_trackPageview']
+                ];
+                (function() {
+                    var ga = document.createElement('script');
+                    ga.type = 'text/javascript';
+                    ga.async = true;
+                    ga.src = '//www.google-analytics.com/ga.js';
+                    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+                })();
+            }
+        </script>
+
+        <link type="application/atom+xml" rel="alternative" href="http://robinwinslow.co.uk/rss.xml" />
+    </head>
+
+    <body>
+        <!--[if lt IE 9]>
+            <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/?locale=en">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
+        <![endif]-->
+        
+        <header>
+            <aside class='vcard'>
+                <hgroup>
+                    <h2 class="fn given-name">Robin</h2>
+                    <h1><a href="/">Blog</a></h1>
+                </hgroup>
+
+                <address>
+                    <ul>
+                        <li title="CV/resumé">
+                            <a href="http://cv.robinwinslow.co.uk" class="icon-file-alt"><span class="resumé">CV/resumé</span></a>
+                        </li>
+                        <li title="Me @ Ubuntu Design Blog">
+                            <a href="http://design.canonical.com/author/nottrobin/"><img src="https://cdn.mediacru.sh/39Xbmyz_jjMh.svg" height="25" class="work-profile" alt="Me @ Ubuntu Design Blog" /></a>
+                        </li>
+                        <li title="Email: robin@robinwinslow.co.uk">
+                            <a href="mailto:robin@robinwinslow.co.uk" class="icon-envelope"><span class="email">robin@robinwinslow.co.uk</span></a>
+                        </li>
+                        <li title="Phone: 07795070704">
+                            <a href="tel:07795070704" class="icon-phone"><span class="tel">07795070704</span></a>
+                        </li>
+                        <li title="Twitter: @nottrobin">
+                            <a href="https://twitter.com/nottrobin" class="icon-twitter"><span class="twitter">@nottrobin</span></a>
+                        </li>
+                        <li title="Facebook: robinwinslowmorris">
+                            <a href="https://facebook.com/robinwinslowmorris" class="icon-facebook"><span class="facebook">robinwinslowmorris</span></a>
+                        </li>
+                        <li title="Fork me on Github" class="github">
+                            <a href="https://github.com/nottrobin/robin-blog/" class="icon-github"><span class="github">Fork me on github</span></a>
+                        </li>
+                    </ul>
+                </address>
+            </aside>
+        </header>
+
+        <article>
+    <header>
+        <h1>Loading fonts as Data URLs for performance</h1>
+        <date>20 Jun 2013</date>
+    </header>
+    
+    <p>With the advent of <a href="https://en.wikipedia.org/wiki/Web_typography#Web_fonts">web fonts</a> (e.g. from <a href="https://www.google.com/fonts/">Google Fonts</a>), thankfully web designers are no longer tied to a limited set of &quot;web safe&quot; fonts.</p>
+
+<h1 id="fonts-and-performance">Fonts and performance</h1>
+
+<p>However, there is a potential performance hit with this. You will need to link your CSS files to the font files. The problem here isn&#39;t so much the size of the font file (they are typically under 100 KB), it&#39;s more that each new HTTP request that a page makes <a href="http://developer.yahoo.com/performance/rules.html">effects performance</a></p>
+
+<p>Also, when loading web fonts externally you will sometimes see a flicker where the page loads initially with the default browser fonts, and then the new fonts are downloaded and applied afterwards. This flicker can look quite unprofessional.</p>
+
+<h1 id="font-formats-and-ie8">Font formats and IE8</h1>
+
+<p>If you want to support Internet Explorer 8 or older, you unfortunately need to include your fonts in two formats: <a href="https://en.wikipedia.org/wiki/Woff">WOFF</a> and <a href="https://en.wikipedia.org/wiki/Embedded_OpenType">EOT</a>.</p>
+
+<p>However, if you&#39;re willing to drop IE8 support (and <a href="/2013/02/28/time-to-say-goodbye-to-ie8/">reap the benefits</a>), or to simply serve the browser default font to IE8, then you can provide your fonts in WOFF only, which is supported by <a href="http://caniuse.com/#search=woff">all other relevant browsers</a>.</p>
+
+<h1 id="data-urls">Data URLs</h1>
+
+<p>So <a href="http://dataurl.net/#about">Data URLs</a>, if you haven&#39;t heard of them, are a way of encoding binary data as a valid URL string. This means the data can be included directly inside HTML or CSS files. They are fantastically easy to create by simply dragging your binary file into the <a href="http://dataurl.net/#dataurlmaker">Data URL Creator</a>.</p>
+
+<p>Data URLs are likely to be a bit larger than the binary file would have been. In my experience they tend to be about 20% larger. So the larger the file you&#39;re dealing with the less practical it becomes to encode the file as a URL. However, for sub-100k web fonts this difference is not so important.</p>
+
+<p>So using Data URLs, you can include your font directly in your CSS like so:</p>
+<div class="highlight"><pre><code class="css"><span class="c">/* http://www.google.com/webfonts/specimen/Lato */</span>
+<span class="k">@font-face</span> <span class="p">{</span>
+    <span class="nt">font-family</span><span class="o">:</span> <span class="s1">&#39;Lato light&#39;</span><span class="o">;</span>
+    <span class="nt">font-style</span><span class="o">:</span> <span class="nt">normal</span><span class="o">;</span>
+    <span class="nt">font-weight</span><span class="o">:</span> <span class="nt">300</span><span class="o">;</span>
+    <span class="nt">src</span><span class="o">:</span> <span class="nt">local</span><span class="o">(</span><span class="s1">&#39;Lato Light&#39;</span><span class="o">),</span> <span class="nt">url</span><span class="o">(</span><span class="s1">&#39;data:application/x-font-woff;base64,d09GRg...BQAAAAB&#39;</span><span class="o">),</span> <span class="nt">format</span><span class="o">(</span><span class="s1">&#39;woff&#39;</span><span class="o">);</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>(here&#39;s <a href="https://github.com/nottrobin/robin-blog/blob/master/_scss/fonts/_arvo.scss">one I prepared earlier</a>)</p>
+
+<p>This will now mean that your web pages will only have to download one CSS file, rather than a CSS file and a bunch of font files, which will help performance. Personally I think it&#39;s also neat not to have to create a special directory for font files. Keeping it all in one place (CSS) just seems nice and neat to me.</p>
+
+<h1 id="a-word-about-caching">A word about caching</h1>
+
+<p>Whether the above suggestion is actually a good idea will depend on how often your CSS changes. Hopefully you&#39;ll be merging your CSS files into one file already to reduce HTTP requests. This of course means that whenever that merged CSS file changes, your users will have to download the whole file again to see your changes.</p>
+
+<p>If your fonts were downloaded as separate files, rather than being included in your CSS, then the fonts may well be cached even if the CSS has changed. However, if you include your fonts inside your CSS files as suggested above, this will mean that whenever your CSS changes a much larger CSS file will have to be downloaded each time. Including your fonts inside your CSS is likely to double the size of your CSS file.</p>
+
+<p>This is a complex decision, but to give you some rough advice I&#39;d say - if you CSS changes more than a couple of times a month then keep your fonts as separate files. If it&#39;s less often (as it is with this site) then it&#39;s probably worth including them inside the CSS as Data URLs.</p>
+
+<p>If you have a different opinion on this, please let me know in the comments.</p>
+
+    
+</article>
+
+
+<section id="categories">
+    <h1>Similar posts</h1>
+    
+    <nav>
+        <ul>
+    
+        
+            
+        
+            
+            <li><a href="/2013/03/05/chrome-v25-breaks-layout-of-date-field/">Chrome v25 breaks layout of date field</a></li>
+            
+        
+            
+            <li><a href="/2013/03/02/awesome-in-site-user-feedback/">An awesome in-site user feedback tool - with Github integration</a></li>
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    
+        </ul>
+    </nav>
+</section>
+
+
+
+<section id="categories">
+    <h1>Read more about</h1>
+    
+    <nav>
+        <ul>
+    
+        
+    
+        
+    
+        
+            <li><a href="/postsbytag.html#front-end">front-end</a> <small>(12)</small></li>
+        
+    
+        
+    
+        
+            <li><a href="/postsbytag.html#development">development</a> <small>(35)</small></li>
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        </ul>
+    </nav>
+</section>
+
+
+<div id="disqus_thread" class="comments"></div>
+
+<script>
+    if (location.hostname=="robinwinslow.co.uk") {
+        var disqus_shortname = 'robin-blog'; // required: replace example with your forum shortname
+        
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    }
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+        <footer>
+            <aside>
+                <p class="side">Please <a href="http://creativecommons.org/licenses/by-sa/3.0/">copy, modify and reshare</a> my work.</p>
+                <p>By <a href="https://plus.google.com/104026832761488144614" rel="author">Robin Winslow</a></a>
+            </aside>
+        </footer>
+    </body>
+</html>

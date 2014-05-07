@@ -1,0 +1,281 @@
+<!doctype html>
+
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+       
+     	<title>Fixing missing Disqus comments though the URL map tool | robin blog</title>
+    	
+    	<meta name="description" content="I spent a while working out why comments stopped showing up on my blog posts. I eventually discovered the cause and worked out how to fix it through the Disqus URL map tool.">
+        <meta name="viewport" content="width=device-width">
+        
+        <link href='/assets/main-42c47c620396de501fe69890b627f720.css' rel='stylesheet' type='text/css' />
+
+
+        <script>
+            if (location.hostname=="robinwinslow.co.uk") {
+                var _gaq=[
+                    ['_require', 'inpage_linkid', '//www.google-analytics.com/plugins/ga/inpage_linkid.js'],
+                    ['_setAccount','UA-2993676-8'],
+                    ['_trackPageview']
+                ];
+                (function() {
+                    var ga = document.createElement('script');
+                    ga.type = 'text/javascript';
+                    ga.async = true;
+                    ga.src = '//www.google-analytics.com/ga.js';
+                    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+                })();
+            }
+        </script>
+
+        <link type="application/atom+xml" rel="alternative" href="http://robinwinslow.co.uk/rss.xml" />
+    </head>
+
+    <body>
+        <!--[if lt IE 9]>
+            <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/?locale=en">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
+        <![endif]-->
+        
+        <header>
+            <aside class='vcard'>
+                <hgroup>
+                    <h2 class="fn given-name">Robin</h2>
+                    <h1><a href="/">Blog</a></h1>
+                </hgroup>
+
+                <address>
+                    <ul>
+                        <li title="CV/resumé">
+                            <a href="http://cv.robinwinslow.co.uk" class="icon-file-alt"><span class="resumé">CV/resumé</span></a>
+                        </li>
+                        <li title="Me @ Ubuntu Design Blog">
+                            <a href="http://design.canonical.com/author/nottrobin/"><img src="https://cdn.mediacru.sh/39Xbmyz_jjMh.svg" height="25" class="work-profile" alt="Me @ Ubuntu Design Blog" /></a>
+                        </li>
+                        <li title="Email: robin@robinwinslow.co.uk">
+                            <a href="mailto:robin@robinwinslow.co.uk" class="icon-envelope"><span class="email">robin@robinwinslow.co.uk</span></a>
+                        </li>
+                        <li title="Phone: 07795070704">
+                            <a href="tel:07795070704" class="icon-phone"><span class="tel">07795070704</span></a>
+                        </li>
+                        <li title="Twitter: @nottrobin">
+                            <a href="https://twitter.com/nottrobin" class="icon-twitter"><span class="twitter">@nottrobin</span></a>
+                        </li>
+                        <li title="Facebook: robinwinslowmorris">
+                            <a href="https://facebook.com/robinwinslowmorris" class="icon-facebook"><span class="facebook">robinwinslowmorris</span></a>
+                        </li>
+                        <li title="Fork me on Github" class="github">
+                            <a href="https://github.com/nottrobin/robin-blog/" class="icon-github"><span class="github">Fork me on github</span></a>
+                        </li>
+                    </ul>
+                </address>
+            </aside>
+        </header>
+
+        <article>
+    <header>
+        <h1>Fixing missing Disqus comments though the URL map tool</h1>
+        <date>14 Jun 2013</date>
+    </header>
+    
+    <p>I noticed the other day that <a href="http://disqus.com/">Disqus</a> comments that were appearing on my site stopped showing up. Articles that had had 2 or 3 comments had started saying &quot;no comments&quot;.</p>
+
+<h1 id="minor-url-changes">Minor URL changes</h1>
+
+<p>After looking into it for a while, and googling a little bit, I realised that the reason was because I had made a <a href="https://github.com/nottrobin/robin-blog/commit/3255ec30f3ae1f7faa13c942e4a5e9db07290a6e">slight change to the way my URLs are structured</a>. For example:</p>
+<div class="highlight"><pre><code class="text">http://robinwinslow.co.uk/2013/02/18/optimal-font-size.html -&gt; http://robinwinslow.co.uk/2013/02/18/optimal-font-size/
+</code></pre></div>
+<p>I had very carefully made sure all the old URLs <a href="https://github.com/nottrobin/robin-blog/commit/af062d575f0b15e54027a2c3df0697162bb312b0">redirected properly to the new ones</a>.</p>
+
+<h1 id="the-problem">The problem</h1>
+
+<p>Disqus didn&#39;t care that I&#39;d taken all this care to create redirects. All it knew was that people had commented on an article at <code>../optimal-font-size.html</code> and now they were asking to see comments at <code>../optimal-font-size/</code> (with a <code>/</code> in place of <code>.html</code>), which isn&#39;t the same thing at all, apparently.</p>
+
+<p>Incidentally I think that this was a bit shit of Disqus - they should use 301 Permanent redirects to link URLs automatically to avoid this issue.</p>
+
+<h1 id="solution-outline">Solution outline</h1>
+
+<p>Disqus, to their credit, <a href="http://blog.disqus.com/post/870654196/migrate-your-threads-by-uploading-a-url-map">created a tool called &quot;URL map&quot;</a>.</p>
+
+<p>You can find the tool inside your Disqus admin area under <a href="http://robin-blog.disqus.com/admin/discussions/migrate/">Discussions -&gt; Tools</a> and use it to replace old incorrect URLs with the new ones.</p>
+
+<h1 id="solution-details">Solution details</h1>
+
+<p>When you go to your <a href="http://disqus.com/admin/moderate/">Disqus admin area</a> (filtered by site, if you like), you can click <a href="http://robin-blog.disqus.com/admin/discussions/">&quot;Discussions&quot;</a> and then <a href="http://robin-blog.disqus.com/admin/discussions/migrate/">&quot;Tools&quot;</a> and then &quot;Start URL mapper&quot;.</p>
+
+<h2 id="download-existing-urls-in-csv-format">Download existing URLs in CSV format</h2>
+
+<p>Now you can <strong>download the CSV</strong> of your existing URLs by clicking &quot;you can download a CSV here&quot;. This is definitely a good idea.</p>
+
+<p>Open it up in your favourite text editor. It will look just like a list of URLs:</p>
+<div class="highlight"><pre><code class="text">http://robinwinslow.co.uk/2013/05/31/installing-symfony-2-by-creating-a-github-fork.html
+http://robinwinslow.co.uk/2013/05/30/why-i-love-the-internet.html
+http://robin-blog.herokuapp.com/2013/05/29/ease-magento-development-with-bootstrapped-scripts.html
+...
+</code></pre></div>
+<p>You want to edit it to add in replacement URLs, so it looks something like this:</p>
+<div class="highlight"><pre><code class="text">http://robinwinslow.co.uk/2013/05/31/installing-symfony-2-by-creating-a-github-fork.html, http://robinwinslow.co.uk/2013/05/31/installing-symfony-2-by-creating-a-github-fork/
+http://robinwinslow.co.uk/2013/05/30/why-i-love-the-internet.html, http://robinwinslow.co.uk/2013/05/30/why-i-love-the-internet/
+http://robin-blog.herokuapp.com/2013/05/29/ease-magento-development-with-bootstrapped-scripts.html, http://robinwinslow.co.uk/2013/05/29/ease-magento-development-with-bootstrapped-scripts/
+...
+</code></pre></div>
+<h2 id="make-it-easier-using-regex-in-sublime">Make it easier using regex in sublime</h2>
+
+<p>I edited it using <a href="http://www.sublimetext.com/">sublime text</a> - a fantastic editor, which support <a href="http://en.wikipedia.org/wiki/Regular_expressions">regular expressions</a>. I used the following find and replace statement to transform the file into what I wanted it to be:</p>
+<div class="highlight"><pre><code class="text">^(http://[^/]+)([^ .\n]+[^/.\n])/?(.html)?[^\n]*$
+\1\2\3, http://robinwinslow.co.uk\2/
+</code></pre></div>
+<p>Which made it so much easier. If your requirements are similar to mine you can probably manage to copy this and tweak it slightly yourself. If they&#39;re different, you&#39;ll have to <a href="http://www.regular-expressions.info/tutorial.html">learn regex</a> to use this solution if you don&#39;t already know it.</p>
+
+<h2 id="upload-the-file">Upload the file</h2>
+
+<p>Now I uploaded the file back to Disqus through <a href="http://robin-blog.disqus.com/admin/discussions/migrate/">the URL map tool</a>, waited a few minutes, and voila! My old comments showed up under my new URLs!</p>
+
+<p>As the tool will tell you, the only way to check this is to check if the missing comments start showing up again.</p>
+
+    
+</article>
+
+
+<section id="categories">
+    <h1>Similar posts</h1>
+    
+    <nav>
+        <ul>
+    
+        
+            
+            <li><a href="/2013/07/22/list-mirror-sites-for-the-pirate-bay/">List: mirror sites (proxies) for The Pirate Bay</a></li>
+            
+        
+            
+            <li><a href="/2013/07/04/how-is-my-blog-going/">How is my blog going? An exploration</a></li>
+            
+        
+            
+            <li><a href="/2013/06/28/public-analytics-data-for-this-site/">Public analytics data for robinwinslow.co.uk</a></li>
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    
+        </ul>
+    </nav>
+</section>
+
+
+
+<section id="categories">
+    <h1>Read more about</h1>
+    
+    <nav>
+        <ul>
+    
+        
+            <li><a href="/postsbytag.html#blogging">blogging</a> <small>(8)</small></li>
+        
+    
+        
+    
+        
+    
+        
+    
+        
+            <li><a href="/postsbytag.html#development">development</a> <small>(35)</small></li>
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        </ul>
+    </nav>
+</section>
+
+
+<div id="disqus_thread" class="comments"></div>
+
+<script>
+    if (location.hostname=="robinwinslow.co.uk") {
+        var disqus_shortname = 'robin-blog'; // required: replace example with your forum shortname
+        
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    }
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+        <footer>
+            <aside>
+                <p class="side">Please <a href="http://creativecommons.org/licenses/by-sa/3.0/">copy, modify and reshare</a> my work.</p>
+                <p>By <a href="https://plus.google.com/104026832761488144614" rel="author">Robin Winslow</a></a>
+            </aside>
+        </footer>
+    </body>
+</html>

@@ -1,0 +1,314 @@
+<!doctype html>
+
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+       
+     	<title>Installing Vagrant on CentOS - the more reliable way | robin blog</title>
+    	
+    	<meta name="description" content="Vagrant installation on CentOS is a tad unreliable. Installing with Ruby Gems is the answer.">
+        <meta name="viewport" content="width=device-width">
+        
+        <link href='/assets/main-42c47c620396de501fe69890b627f720.css' rel='stylesheet' type='text/css' />
+
+
+        <script>
+            if (location.hostname=="robinwinslow.co.uk") {
+                var _gaq=[
+                    ['_require', 'inpage_linkid', '//www.google-analytics.com/plugins/ga/inpage_linkid.js'],
+                    ['_setAccount','UA-2993676-8'],
+                    ['_trackPageview']
+                ];
+                (function() {
+                    var ga = document.createElement('script');
+                    ga.type = 'text/javascript';
+                    ga.async = true;
+                    ga.src = '//www.google-analytics.com/ga.js';
+                    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+                })();
+            }
+        </script>
+
+        <link type="application/atom+xml" rel="alternative" href="http://robinwinslow.co.uk/rss.xml" />
+    </head>
+
+    <body>
+        <!--[if lt IE 9]>
+            <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/?locale=en">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
+        <![endif]-->
+        
+        <header>
+            <aside class='vcard'>
+                <hgroup>
+                    <h2 class="fn given-name">Robin</h2>
+                    <h1><a href="/">Blog</a></h1>
+                </hgroup>
+
+                <address>
+                    <ul>
+                        <li title="CV/resumé">
+                            <a href="http://cv.robinwinslow.co.uk" class="icon-file-alt"><span class="resumé">CV/resumé</span></a>
+                        </li>
+                        <li title="Me @ Ubuntu Design Blog">
+                            <a href="http://design.canonical.com/author/nottrobin/"><img src="https://cdn.mediacru.sh/39Xbmyz_jjMh.svg" height="25" class="work-profile" alt="Me @ Ubuntu Design Blog" /></a>
+                        </li>
+                        <li title="Email: robin@robinwinslow.co.uk">
+                            <a href="mailto:robin@robinwinslow.co.uk" class="icon-envelope"><span class="email">robin@robinwinslow.co.uk</span></a>
+                        </li>
+                        <li title="Phone: 07795070704">
+                            <a href="tel:07795070704" class="icon-phone"><span class="tel">07795070704</span></a>
+                        </li>
+                        <li title="Twitter: @nottrobin">
+                            <a href="https://twitter.com/nottrobin" class="icon-twitter"><span class="twitter">@nottrobin</span></a>
+                        </li>
+                        <li title="Facebook: robinwinslowmorris">
+                            <a href="https://facebook.com/robinwinslowmorris" class="icon-facebook"><span class="facebook">robinwinslowmorris</span></a>
+                        </li>
+                        <li title="Fork me on Github" class="github">
+                            <a href="https://github.com/nottrobin/robin-blog/" class="icon-github"><span class="github">Fork me on github</span></a>
+                        </li>
+                    </ul>
+                </address>
+            </aside>
+        </header>
+
+        <article>
+    <header>
+        <h1>Installing Vagrant on CentOS - the more reliable way</h1>
+        <date>17 Jul 2012</date>
+    </header>
+    
+    <p>I&#39;ve been playing around with <a href="http://vagrantup.com/">Vagrant</a> lately. It&#39;s a &quot;virtualized development tool&quot; - a tool for quickly configuring and spinning up virtual machines for a software project.</p>
+
+<p>Its real strength is that the Vagrant configuration files can be easily committed to a project&#39;s repository, allowing anyone who then checks out the project (assuming they have Vagrant installed) to quickly and reliably spin up a virtual machine pre-configured with all the project&#39;s dependencies.</p>
+
+<p>If you want you can <a href="#solution">skip to the solution</a>.</p>
+
+<p><a id="problem"></a></p>
+
+<h1 id="the-problem">The problem</h1>
+
+<p>The Vagrant website doesn&#39;t give you very much detail about how to install it. There is a <a href="http://downloads.vagrantup.com/tags/v1.0.3">download page</a> with a list of packages for different systems, but when I tried to install this package on CentOS it gave me some sort of Ruby related error (I have zero experience with Ruby).</p>
+<div class="highlight"><pre><code class="bash"><span class="nv">$ </span>wget http://files.vagrantup.com/packages/eb590aa3d936ac71cbf9c64cf207f148ddfc000a/vagrant_1.0.3_x86_64.rpm
+<span class="nv">$ </span>sudo rpm -i vagrant_1.0.3_x86_64.rpm
+<span class="nv">$ </span>/opt/vagrant/bin/vagrant
+/opt/vagrant/bin/../embedded/bin/ruby: /lib64/libc.so.6: version <span class="sb">`</span>GLIBC_2.6<span class="err">&#39;</span> not found <span class="o">(</span>required by /opt/vagrant/embedded/bin/../lib/libruby.so.1.9<span class="o">)</span>
+</code></pre></div>
+<p>I <a href="https://www.google.co.uk/search?sugexp=chrome,mod=9&amp;amp;sourceid=chrome&amp;amp;ie=UTF-8&amp;amp;q=install+vagrant+on+centos">asked the internet</a> how to install Vagrant on CentOS but it wasn&#39;t very helpful. Eventually I found a blog post on <a href="http://www.dejonghenico.be/unix/setup-vagrant-and-small-quick-start">how to setup Vagrant on Ubuntu</a> which gave me my answer, so I thought I&#39;d share it with you.</p>
+
+<p><a id="solution"></a></p>
+
+<h1 id="the-solution">The solution</h1>
+
+<p>You need to install Vagrant through Ruby Gems. Thankfully it really is pretty simple:</p>
+<div class="highlight"><pre><code class="bash"><span class="nv">$ </span>sudo yum install ruby
+...
+<span class="nv">$ </span>sudo yum install rubygems
+...
+<span class="nv">$ </span>sudo gem update --system
+...
+<span class="nv">$ </span>sudo gem install vagrant
+</code></pre></div>
+<p>On my system this installed Vagrant to:</p>
+<div class="highlight"><pre><code class="text">/usr/local/bin/vagrant 
+</code></pre></div>
+    
+</article>
+
+
+<section id="categories">
+    <h1>Similar posts</h1>
+    
+    <nav>
+        <ul>
+    
+        
+            
+            <li><a href="/2014/01/10/agile-philosophy/">Agile philosophy: A summary</a></li>
+            
+        
+            
+            <li><a href="/2014/01/09/php-programming-principles/">PHP best practices</a></li>
+            
+        
+            
+            <li><a href="/2014/01/08/general-coding-guidelines/">Best-practice tips for programmers</a></li>
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    
+        </ul>
+    </nav>
+</section>
+
+
+
+<section id="categories">
+    <h1>Read more about</h1>
+    
+    <nav>
+        <ul>
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+            <li><a href="/postsbytag.html#development">development</a> <small>(35)</small></li>
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+            <li><a href="/postsbytag.html#devops">devops</a> <small>(2)</small></li>
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        </ul>
+    </nav>
+</section>
+
+
+<div id="disqus_thread" class="comments"></div>
+
+<script>
+    if (location.hostname=="robinwinslow.co.uk") {
+        var disqus_shortname = 'robin-blog'; // required: replace example with your forum shortname
+        
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    }
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+        <footer>
+            <aside>
+                <p class="side">Please <a href="http://creativecommons.org/licenses/by-sa/3.0/">copy, modify and reshare</a> my work.</p>
+                <p>By <a href="https://plus.google.com/104026832761488144614" rel="author">Robin Winslow</a></a>
+            </aside>
+        </footer>
+    </body>
+</html>

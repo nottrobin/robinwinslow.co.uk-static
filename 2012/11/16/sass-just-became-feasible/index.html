@@ -1,0 +1,290 @@
+<!doctype html>
+
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+       
+     	<title>Sass just became feasible | robin blog</title>
+    	
+    	<meta name="description" content="Now that Chrome Developer Tools and Firebug support Sass debugging, CSS pre-processors have a viable future.">
+        <meta name="viewport" content="width=device-width">
+        
+        <link href='/assets/main-42c47c620396de501fe69890b627f720.css' rel='stylesheet' type='text/css' />
+
+
+        <script>
+            if (location.hostname=="robinwinslow.co.uk") {
+                var _gaq=[
+                    ['_require', 'inpage_linkid', '//www.google-analytics.com/plugins/ga/inpage_linkid.js'],
+                    ['_setAccount','UA-2993676-8'],
+                    ['_trackPageview']
+                ];
+                (function() {
+                    var ga = document.createElement('script');
+                    ga.type = 'text/javascript';
+                    ga.async = true;
+                    ga.src = '//www.google-analytics.com/ga.js';
+                    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+                })();
+            }
+        </script>
+
+        <link type="application/atom+xml" rel="alternative" href="http://robinwinslow.co.uk/rss.xml" />
+    </head>
+
+    <body>
+        <!--[if lt IE 9]>
+            <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/?locale=en">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
+        <![endif]-->
+        
+        <header>
+            <aside class='vcard'>
+                <hgroup>
+                    <h2 class="fn given-name">Robin</h2>
+                    <h1><a href="/">Blog</a></h1>
+                </hgroup>
+
+                <address>
+                    <ul>
+                        <li title="CV/resumé">
+                            <a href="http://cv.robinwinslow.co.uk" class="icon-file-alt"><span class="resumé">CV/resumé</span></a>
+                        </li>
+                        <li title="Me @ Ubuntu Design Blog">
+                            <a href="http://design.canonical.com/author/nottrobin/"><img src="https://cdn.mediacru.sh/39Xbmyz_jjMh.svg" height="25" class="work-profile" alt="Me @ Ubuntu Design Blog" /></a>
+                        </li>
+                        <li title="Email: robin@robinwinslow.co.uk">
+                            <a href="mailto:robin@robinwinslow.co.uk" class="icon-envelope"><span class="email">robin@robinwinslow.co.uk</span></a>
+                        </li>
+                        <li title="Phone: 07795070704">
+                            <a href="tel:07795070704" class="icon-phone"><span class="tel">07795070704</span></a>
+                        </li>
+                        <li title="Twitter: @nottrobin">
+                            <a href="https://twitter.com/nottrobin" class="icon-twitter"><span class="twitter">@nottrobin</span></a>
+                        </li>
+                        <li title="Facebook: robinwinslowmorris">
+                            <a href="https://facebook.com/robinwinslowmorris" class="icon-facebook"><span class="facebook">robinwinslowmorris</span></a>
+                        </li>
+                        <li title="Fork me on Github" class="github">
+                            <a href="https://github.com/nottrobin/robin-blog/" class="icon-github"><span class="github">Fork me on github</span></a>
+                        </li>
+                    </ul>
+                </address>
+            </aside>
+        </header>
+
+        <article>
+    <header>
+        <h1>Sass just became feasible</h1>
+        <date>16 Nov 2012</date>
+    </header>
+    
+    <p>I&#39;ve been interested in CSS pre-processors for a while. They solve the inherent CSS problem of repeatable code blocks, and thus enable <a href="http://semantic.gs/">grid systems</a> that don&#39;t <a href="http://webdesignernotebook.com/css/are-css-frameworks-evil/">litter markup with &quot;styling&quot; classes</a>.</p>
+
+<p>It seems to me that <a href="http://lesscss.org/">LESS</a> and <a href="http://sass-lang.com/">Sass</a> always had one Achilles heel - debugging. Right clicking on an element that is styled incorrectly and inspecting it is absolutely essential to the process of styling a web page, and without that, these tools had no future. I now believe that this problem is behind us.</p>
+
+<p>In addition to the <a href="http://stackoverflow.com/questions/9865302/less-sass-debugging-in-chrome-dev-tools-firebug">existing solutions</a>, Webkit now has <a href="http://trac.webkit.org/changeset/123768">built-in support</a> for Sass debugging, and the option is now included in Chrome Developer Tools. Read more about it on <a href="http://bricss.net/post/33788072565/using-sass-source-maps-in-webkit-inspector">bricss.net</a> or <a href="http://benfrain.com/add-sass-compass-debug-info-for-chrome-web-developer-tools/">benfrain.com</a>.</p>
+
+<p>As a side-note - there is a bit of a <a href="http://stackoverflow.com/questions/8411066/less-vs-sass-vs">battle between LESS and Sass</a>. I always preferred LESS because it seemed more cross-platform, and closer to actual CSS. However this development seems to suggest that tools are being developed faster for Sass. So it&#39;s now looking to me as though Sass will prevail.</p>
+
+    
+</article>
+
+
+<section id="categories">
+    <h1>Similar posts</h1>
+    
+    <nav>
+        <ul>
+    
+        
+            
+            <li><a href="/2014/01/10/agile-philosophy/">Agile philosophy: A summary</a></li>
+            
+        
+            
+            <li><a href="/2014/01/09/php-programming-principles/">PHP best practices</a></li>
+            
+        
+            
+            <li><a href="/2014/01/08/general-coding-guidelines/">Best-practice tips for programmers</a></li>
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    
+        </ul>
+    </nav>
+</section>
+
+
+
+<section id="categories">
+    <h1>Read more about</h1>
+    
+    <nav>
+        <ul>
+    
+        
+    
+        
+            <li><a href="/postsbytag.html#CSS">CSS</a> <small>(2)</small></li>
+        
+    
+        
+            <li><a href="/postsbytag.html#front-end">front-end</a> <small>(12)</small></li>
+        
+    
+        
+    
+        
+            <li><a href="/postsbytag.html#development">development</a> <small>(35)</small></li>
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        </ul>
+    </nav>
+</section>
+
+
+<div id="disqus_thread" class="comments"></div>
+
+<script>
+    if (location.hostname=="robinwinslow.co.uk") {
+        var disqus_shortname = 'robin-blog'; // required: replace example with your forum shortname
+        
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    }
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+        <footer>
+            <aside>
+                <p class="side">Please <a href="http://creativecommons.org/licenses/by-sa/3.0/">copy, modify and reshare</a> my work.</p>
+                <p>By <a href="https://plus.google.com/104026832761488144614" rel="author">Robin Winslow</a></a>
+            </aside>
+        </footer>
+    </body>
+</html>

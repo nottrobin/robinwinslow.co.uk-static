@@ -1,0 +1,345 @@
+<!doctype html>
+
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+       
+     	<title>Ease Magento development with bootstrapped scripts | robin blog</title>
+    	
+    	<meta name="description" content="Mini scripts are super-helpful in magento development. This will explain how to bootstrap them and give a simple example of how to select a category and get its children.">
+        <meta name="viewport" content="width=device-width">
+        
+        <link href='/assets/main-42c47c620396de501fe69890b627f720.css' rel='stylesheet' type='text/css' />
+
+
+        <script>
+            if (location.hostname=="robinwinslow.co.uk") {
+                var _gaq=[
+                    ['_require', 'inpage_linkid', '//www.google-analytics.com/plugins/ga/inpage_linkid.js'],
+                    ['_setAccount','UA-2993676-8'],
+                    ['_trackPageview']
+                ];
+                (function() {
+                    var ga = document.createElement('script');
+                    ga.type = 'text/javascript';
+                    ga.async = true;
+                    ga.src = '//www.google-analytics.com/ga.js';
+                    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+                })();
+            }
+        </script>
+
+        <link type="application/atom+xml" rel="alternative" href="http://robinwinslow.co.uk/rss.xml" />
+    </head>
+
+    <body>
+        <!--[if lt IE 9]>
+            <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/?locale=en">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
+        <![endif]-->
+        
+        <header>
+            <aside class='vcard'>
+                <hgroup>
+                    <h2 class="fn given-name">Robin</h2>
+                    <h1><a href="/">Blog</a></h1>
+                </hgroup>
+
+                <address>
+                    <ul>
+                        <li title="CV/resumé">
+                            <a href="http://cv.robinwinslow.co.uk" class="icon-file-alt"><span class="resumé">CV/resumé</span></a>
+                        </li>
+                        <li title="Me @ Ubuntu Design Blog">
+                            <a href="http://design.canonical.com/author/nottrobin/"><img src="https://cdn.mediacru.sh/39Xbmyz_jjMh.svg" height="25" class="work-profile" alt="Me @ Ubuntu Design Blog" /></a>
+                        </li>
+                        <li title="Email: robin@robinwinslow.co.uk">
+                            <a href="mailto:robin@robinwinslow.co.uk" class="icon-envelope"><span class="email">robin@robinwinslow.co.uk</span></a>
+                        </li>
+                        <li title="Phone: 07795070704">
+                            <a href="tel:07795070704" class="icon-phone"><span class="tel">07795070704</span></a>
+                        </li>
+                        <li title="Twitter: @nottrobin">
+                            <a href="https://twitter.com/nottrobin" class="icon-twitter"><span class="twitter">@nottrobin</span></a>
+                        </li>
+                        <li title="Facebook: robinwinslowmorris">
+                            <a href="https://facebook.com/robinwinslowmorris" class="icon-facebook"><span class="facebook">robinwinslowmorris</span></a>
+                        </li>
+                        <li title="Fork me on Github" class="github">
+                            <a href="https://github.com/nottrobin/robin-blog/" class="icon-github"><span class="github">Fork me on github</span></a>
+                        </li>
+                    </ul>
+                </address>
+            </aside>
+        </header>
+
+        <article>
+    <header>
+        <h1>Ease Magento development with bootstrapped scripts</h1>
+        <date>29 May 2013</date>
+    </header>
+    
+    <p>If you work in Magento a lot, you&#39;ll come to many many points when you need to manipulate the models in Magento programmatically.</p>
+
+<p>This could help you inspect the raw data stored against the models (Magento&#39;s database structure is <a href="http://www.magentocommerce.com/wiki/2_-_magento_concepts_and_architecture/magento_database_diagram">hideously complex</a>), or it could be because you need to edit existing models or create new ones.</p>
+
+<h1 id="the-bootstrap-script">The bootstrap script</h1>
+
+<p>I suggest you create the bootstrap as its own script so you can include it in all your little scripts:</p>
+<div class="highlight"><pre><code class="bash"><span class="c"># from magento project root</span>
+mkdir scripts
+touch scripts/bootstrap.php
+</code></pre></div>
+<p>Bootstrapping Magento requires a few lines - you can tweak the individual settings if you like:</p>
+<div class="highlight"><pre><code class="php"><span class="x">// scripts/bootstrap.php</span>
+
+<span class="cp">&lt;?php</span>
+<span class="nb">ini_set</span><span class="p">(</span><span class="s1">&#39;memory_limit&#39;</span><span class="p">,</span> <span class="s1">&#39;1024M&#39;</span><span class="p">);</span>
+<span class="nb">set_time_limit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+
+<span class="cm">/* Includes */</span>
+<span class="k">require_once</span> <span class="nb">realpath</span><span class="p">(</span><span class="nx">__DIR__</span><span class="p">)</span> <span class="o">.</span> <span class="s1">&#39;/../app/Mage.php&#39;</span><span class="p">;</span>
+
+<span class="cm">/* Enable developer mode */</span>
+<span class="nx">Mage</span><span class="o">::</span><span class="na">setIsDeveloperMode</span><span class="p">(</span><span class="k">true</span><span class="p">);</span>
+
+<span class="nx">Mage</span><span class="o">::</span><span class="na">app</span><span class="p">(</span><span class="s1">&#39;admin&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">setUseSessionInUrl</span><span class="p">(</span><span class="k">false</span><span class="p">);</span>
+
+<span class="nv">$userModel</span> <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">getModel</span><span class="p">(</span><span class="s1">&#39;admin/user&#39;</span><span class="p">);</span>
+<span class="nv">$userModel</span><span class="o">-&gt;</span><span class="na">setUserId</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="nx">Mage</span><span class="o">::</span><span class="na">getSingleton</span><span class="p">(</span><span class="s1">&#39;admin/session&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">setUser</span><span class="p">(</span><span class="nv">$userModel</span><span class="p">);</span>
+
+<span class="nx">Mage</span><span class="o">::</span><span class="na">app</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">setCurrentStore</span><span class="p">(</span><span class="nx">Mage_Core_Model_App</span><span class="o">::</span><span class="na">ADMIN_STORE_ID</span><span class="p">);</span>
+
+<span class="cm">/* Undo Magento&#39;s hiding of errors */</span>
+<span class="nb">error_reporting</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">);</span>
+<span class="nb">ini_set</span><span class="p">(</span><span class="s1">&#39;display_errors&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<span class="cp">?&gt;</span><span class="x"></span>
+</code></pre></div>
+<p>Once you&#39;ve done this, you can use the <code>Mage</code> static to <a href="http://www.magentocommerce.com/knowledge-base/entry/magento-for-dev-part-1-introduction-to-magento">do whatever you like</a>. </p>
+
+<h1 id="a-use-case">A use-case</h1>
+
+<p>Here&#39;s a simple example that just retrieves the child IDs of the default category.</p>
+
+<p>Note how this script includes the bootstrap script that we just made at the top:</p>
+<div class="highlight"><pre><code class="php"><span class="x">// scripts/default-category-children.php</span>
+
+<span class="cp">&lt;?php</span>
+<span class="c1">// Bootstrap Magento</span>
+<span class="k">require_once</span><span class="p">(</span><span class="nb">realpath</span><span class="p">(</span><span class="nx">__DIR__</span><span class="p">)</span> <span class="o">.</span> <span class="s1">&#39;/bootstrap.php&#39;</span><span class="p">);</span>
+
+<span class="c1">// Get default category model</span>
+<span class="nv">$defaultCategory</span> <span class="o">=</span> <span class="nx">Mage</span><span class="o">::</span><span class="na">getModel</span><span class="p">(</span><span class="s1">&#39;catalog/category&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">getCollection</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">addAttributeToSelect</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">addFieldToFilter</span><span class="p">(</span><span class="s1">&#39;category_code&#39;</span><span class="p">,</span><span class="s1">&#39;default&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">getFirstItem</span><span class="p">();</span>
+
+<span class="c1">// Show a list of IDs of its children</span>
+<span class="k">echo</span> <span class="nv">$defaultCategory</span><span class="o">-&gt;</span><span class="na">getChildren</span><span class="p">();</span>
+<span class="cp">?&gt;</span><span class="x"></span>
+</code></pre></div>
+<p>And now you can run this directly from the command-line:</p>
+<div class="highlight"><pre><code class="bash"><span class="nv">$ </span>php scripts/default-category-children.php
+3,7,8
+</code></pre></div>
+<p>There are many useful things you can do with these scripts - not to mention writing them will increase your understanding of Magento like nothing else.</p>
+
+<p>I will also post some good example scripts on this blog in the near future, and I&#39;ll try to remember to add the links to those posts below.</p>
+
+    
+</article>
+
+
+<section id="categories">
+    <h1>Similar posts</h1>
+    
+    <nav>
+        <ul>
+    
+        
+            
+            <li><a href="/2014/01/10/agile-philosophy/">Agile philosophy: A summary</a></li>
+            
+        
+            
+            <li><a href="/2014/01/09/php-programming-principles/">PHP best practices</a></li>
+            
+        
+            
+            <li><a href="/2014/01/08/general-coding-guidelines/">Best-practice tips for programmers</a></li>
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    
+        </ul>
+    </nav>
+</section>
+
+
+
+<section id="categories">
+    <h1>Read more about</h1>
+    
+    <nav>
+        <ul>
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+            <li><a href="/postsbytag.html#development">development</a> <small>(35)</small></li>
+        
+    
+        
+    
+        
+            <li><a href="/postsbytag.html#back-end">back-end</a> <small>(12)</small></li>
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        </ul>
+    </nav>
+</section>
+
+
+<div id="disqus_thread" class="comments"></div>
+
+<script>
+    if (location.hostname=="robinwinslow.co.uk") {
+        var disqus_shortname = 'robin-blog'; // required: replace example with your forum shortname
+        
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    }
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+        <footer>
+            <aside>
+                <p class="side">Please <a href="http://creativecommons.org/licenses/by-sa/3.0/">copy, modify and reshare</a> my work.</p>
+                <p>By <a href="https://plus.google.com/104026832761488144614" rel="author">Robin Winslow</a></a>
+            </aside>
+        </footer>
+    </body>
+</html>

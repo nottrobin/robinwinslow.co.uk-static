@@ -1,0 +1,276 @@
+<!doctype html>
+
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+       
+     	<title>TMUX and SSH auto-login with ssh-agent (finally!) | robin blog</title>
+    	
+    	<meta name="description" content="The steps necessary to get TMUX ssh-agent correctly configured.">
+        <meta name="viewport" content="width=device-width">
+        
+        <link href='/assets/main-42c47c620396de501fe69890b627f720.css' rel='stylesheet' type='text/css' />
+
+
+        <script>
+            if (location.hostname=="robinwinslow.co.uk") {
+                var _gaq=[
+                    ['_require', 'inpage_linkid', '//www.google-analytics.com/plugins/ga/inpage_linkid.js'],
+                    ['_setAccount','UA-2993676-8'],
+                    ['_trackPageview']
+                ];
+                (function() {
+                    var ga = document.createElement('script');
+                    ga.type = 'text/javascript';
+                    ga.async = true;
+                    ga.src = '//www.google-analytics.com/ga.js';
+                    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+                })();
+            }
+        </script>
+
+        <link type="application/atom+xml" rel="alternative" href="http://robinwinslow.co.uk/rss.xml" />
+    </head>
+
+    <body>
+        <!--[if lt IE 9]>
+            <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/?locale=en">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
+        <![endif]-->
+        
+        <header>
+            <aside class='vcard'>
+                <hgroup>
+                    <h2 class="fn given-name">Robin</h2>
+                    <h1><a href="/">Blog</a></h1>
+                </hgroup>
+
+                <address>
+                    <ul>
+                        <li title="CV/resumé">
+                            <a href="http://cv.robinwinslow.co.uk" class="icon-file-alt"><span class="resumé">CV/resumé</span></a>
+                        </li>
+                        <li title="Me @ Ubuntu Design Blog">
+                            <a href="http://design.canonical.com/author/nottrobin/"><img src="https://cdn.mediacru.sh/39Xbmyz_jjMh.svg" height="25" class="work-profile" alt="Me @ Ubuntu Design Blog" /></a>
+                        </li>
+                        <li title="Email: robin@robinwinslow.co.uk">
+                            <a href="mailto:robin@robinwinslow.co.uk" class="icon-envelope"><span class="email">robin@robinwinslow.co.uk</span></a>
+                        </li>
+                        <li title="Phone: 07795070704">
+                            <a href="tel:07795070704" class="icon-phone"><span class="tel">07795070704</span></a>
+                        </li>
+                        <li title="Twitter: @nottrobin">
+                            <a href="https://twitter.com/nottrobin" class="icon-twitter"><span class="twitter">@nottrobin</span></a>
+                        </li>
+                        <li title="Facebook: robinwinslowmorris">
+                            <a href="https://facebook.com/robinwinslowmorris" class="icon-facebook"><span class="facebook">robinwinslowmorris</span></a>
+                        </li>
+                        <li title="Fork me on Github" class="github">
+                            <a href="https://github.com/nottrobin/robin-blog/" class="icon-github"><span class="github">Fork me on github</span></a>
+                        </li>
+                    </ul>
+                </address>
+            </aside>
+        </header>
+
+        <article>
+    <header>
+        <h1>TMUX and SSH auto-login with ssh-agent (finally!)</h1>
+        <date>20 Jul 2012</date>
+    </header>
+    
+    <p>I finally got this working, so I thought I&#39;d blog about it.</p>
+
+<p>Here&#39;s what I wanted to achieve:</p>
+
+<ul>
+<li>I log in to my unix system via SSH</li>
+<li><a href="http://tmux.sourceforge.net/">tmux</a>, my terminal multiplexer, starts up automatically</li>
+<li>I can then SSH between my environments <strong>without</strong> typing in a password every time.</li>
+</ul>
+
+<p>This is harder than you might think, as it requires several things to work together. After reading <a href="http://spin.atomicobject.com/2012/01/28/less-perplexing-terminal-multiplexing-with-tmux/">through</a> <a href="http://dpc.ucore.info/post/14988791712/make-tmux-and-ssh-agent-work-smoothly">loads</a> <a href="http://superuser.com/questions/237822/how-can-i-get-ssh-agent-working-over-ssh-and-in-tmux-on-os-x">of</a> <a href="http://blog.codersbase.com/2012/03/tmux-ssh-agent.html">blog</a> <a href="http://www.opsbs.com/2011/04/terminal-multiplexing-with-ssh-agent-my-tmux-setup/">posts</a> I worked out how to do it:</p>
+
+<ul>
+<li>A password-less private key setup in your .ssh/ directory (e.g. ~/.ssh/id_dsa)</li>
+<li>The public key added to the authorised_keys for each destination box</li>
+<li>An ssh-agent environment running to automatically forward your keys for SSH connection.</li>
+<li>Make sure you don&#39;t spawn a new ssh-agent each time you log in, as you&#39;ll end up with hundreds of orphaned processes.</li>
+</ul>
+
+<p>It was the last step I was struggling with. To setup the first two steps <a href="http://www.thegeekstuff.com/2008/11/3-steps-to-perform-ssh-login-without-password-using-ssh-keygen-ssh-copy-id/">follow the guide here</a>.</p>
+
+<p>However, if you then don&#39;t do the final step, it will always ask for a passphrase for your key whenever you try to SSH:</p>
+<div class="highlight"><pre><code class="text">[rwmorris@dev:~] $ ssh qa
+Enter passphrase for key &#39;/home/rwmorris/.ssh/id_dsa.pub&#39;:
+</code></pre></div>
+<p>For step 3 you need your tmux session to be aware of the ssh-agent environment, which isn&#39;t too hard.</p>
+
+<p>The problem in step for is that, stupidly, ssh-agent processes persist even if you log out of your terminal, and then if you spawn a new one when you log in again you end up with hundreds of orphaned processes and the sysadmins get upset.</p>
+
+<p>The solution to that is to make sure you start you ssh-agent with the &quot;-a&quot; option to specify the socket it should use, and then make sure you store the process ID (PID) somewhere. That way you can re-set the $SSH<em>AUTH</em>SOCK and $SSH<em>AGENT</em>PID environment variables to the correct values when you login again, and everything will work.</p>
+
+<p>1: Fire up the ssh-agent process before you run your tmux session, making sure you only start a new one if there isn&#39;t an existing one already.</p>
+<div class="highlight"><pre><code class="bash"><span class="c"># ~/.bashrc</span>
+
+<span class="k">if</span> <span class="o">[</span> -z <span class="s2">&quot;$TMUX&quot;</span> <span class="o">]</span>; <span class="k">then</span>
+    <span class="c"># we&#39;re not in a tmux session</span>
+
+    <span class="k">if</span> <span class="o">[</span> ! -z <span class="s2">&quot;$SSH_TTY&quot;</span> <span class="o">]</span>; <span class="k">then</span>
+        <span class="c"># We logged in via SSH</span>
+
+        <span class="c"># if ssh auth variable is missing</span>
+        <span class="k">if</span> <span class="o">[</span> -z <span class="s2">&quot;$SSH_AUTH_SOCK&quot;</span> <span class="o">]</span>; <span class="k">then</span>
+<span class="k">            </span><span class="nb">export </span><span class="nv">SSH_AUTH_SOCK</span><span class="o">=</span><span class="s2">&quot;$HOME/.ssh/.auth_socket&quot;</span>
+        <span class="k">fi</span>
+
+        <span class="c"># if socket is available create the new auth session</span>
+        <span class="k">if</span> <span class="o">[</span> ! -S <span class="s2">&quot;$SSH_AUTH_SOCK&quot;</span> <span class="o">]</span>; <span class="k">then</span>
+            <span class="sb">`</span>ssh-agent -a <span class="nv">$SSH_AUTH_SOCK</span><span class="sb">`</span> &amp;gt; /dev/null 2&amp;gt;&amp;amp;1
+            <span class="nb">echo</span> <span class="nv">$SSH_AGENT_PID</span> &amp;gt; <span class="nv">$HOME</span>/.ssh/.auth_pid
+        <span class="k">fi</span>
+
+        <span class="c"># if agent isn&#39;t defined, recreate it from pid file</span>
+        <span class="k">if</span> <span class="o">[</span> -z <span class="nv">$SSH_AGENT_PID</span> <span class="o">]</span>; <span class="k">then</span>
+<span class="k">            </span><span class="nb">export </span><span class="nv">SSH_AGENT_PID</span><span class="o">=</span><span class="sb">`</span>cat <span class="nv">$HOME</span>/.ssh/.auth_pid<span class="sb">`</span>
+        <span class="k">fi</span>
+
+        <span class="c"># Add all default keys to ssh auth</span>
+        ssh-add 2&gt;/dev/null
+
+        <span class="c"># start tmux</span>
+        tmux attach
+    <span class="k">fi</span>
+<span class="k">fi</span>
+</code></pre></div>
+<p>2: Make sure tmux is configured to pass through appropriate environment variables so it can find the socket for your ssh-agent session:</p>
+<div class="highlight"><pre><code class="bash"><span class="c"># ~/.tmux.conf</span>
+<span class="nb">set</span> -g update-environment -r
+</code></pre></div>
+<p>And win. Sorry it&#39;s not more simple. You&#39;d think a lot of this would be the default use-case so it would just work out of the box, but sadly that&#39;s not the way the unix world works. </p>
+
+    
+</article>
+
+
+<section id="categories">
+    <h1>Similar posts</h1>
+    
+    <nav>
+        <ul>
+    
+        
+            
+        
+    
+        </ul>
+    </nav>
+</section>
+
+
+
+<section id="categories">
+    <h1>Read more about</h1>
+    
+    <nav>
+        <ul>
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+            <li><a href="/postsbytag.html#development">development</a> <small>(35)</small></li>
+        
+    
+        
+    
+        
+            <li><a href="/postsbytag.html#back-end">back-end</a> <small>(12)</small></li>
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        </ul>
+    </nav>
+</section>
+
+
+<div id="disqus_thread" class="comments"></div>
+
+<script>
+    if (location.hostname=="robinwinslow.co.uk") {
+        var disqus_shortname = 'robin-blog'; // required: replace example with your forum shortname
+        
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    }
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+        <footer>
+            <aside>
+                <p class="side">Please <a href="http://creativecommons.org/licenses/by-sa/3.0/">copy, modify and reshare</a> my work.</p>
+                <p>By <a href="https://plus.google.com/104026832761488144614" rel="author">Robin Winslow</a></a>
+            </aside>
+        </footer>
+    </body>
+</html>
